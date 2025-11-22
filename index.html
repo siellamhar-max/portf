@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio Website</title>
+    <style>
+        /* General Setup - Dark Theme */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0a0a0a; /* Dark background */
+            color: #b0b0b0; /* Light text */
+            overflow: hidden;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-in {
+            animation: fadeIn 0.5s ease-out, slideInUp 0.6s ease-out;
+        }
+
+        /* Navigation Bar - Dark Tech Look */
+        nav {
+            width: 100%; height: 65px; background: #0a0a0a;
+            display: flex; justify-content: center; align-items: center; gap: 10px; /* Reduced gap for 4 items */
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* Subtle cyan glow */
+        }
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px; /* Reduced font size for mobile fit */
+            font-weight: 600;
+            padding: 8px 10px;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+        nav a:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00FFFF;
+            color: #00FFFF;
+        }
+        .nav-active {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00FFFF;
+            border-color: #00FFFF;
+        }
+
+        @media (min-width: 768px) {
+            nav a { font-size: 18px; padding: 10px 20px; gap: 20px; }
+        }
+
+        /* Page Container - Non-Scrollable Height */
+        .page {
+            width: 100vw;
+            height: calc(100vh - 65px);
+            display: none;
+            padding: 20px;
+            overflow: hidden; /* Prevents outer scrollbar */
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .active { display: flex; }
+
+        /* Navigation Buttons - Angular/Sharp */
+        .nav-button-container {
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            flex-shrink: 0;
+        }
+        .nav-button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 0; /* Sharp edges */
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        /* Style for the Family Back button to match the desired design */
+        #family .nav-button-back {
+            background: #007bff; /* Darker blue color for the button */
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            border-radius: 5px; /* Rounded corners for the button */
+            font-size: 18px;
+            padding: 12px 30px;
+            margin: 0; /* Remove default margin */
+            align-self: flex-start; /* Align button to the start */
+        }
+        .nav-button-back {
+            background: #555;
+            color: #ffffff;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+        .nav-button-next {
+            background: #00FFFF; /* Cyan */
+            color: #1c1c1c; /* Dark text on bright button */
+            box-shadow: 0 0 10px #00FFFF;
+        }
+        .nav-button:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        /* HOME PAGE Layout (About Me) */
+        .home-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+        }
+        #home h1 { font-size: 36px; color: #00FFFF; margin-bottom: 10px; }
+        #home p { max-width: 90%; font-size: 16px; color: #b0b0b0; line-height: 1.4; flex-shrink: 1; margin-bottom: 20px; }
+        @media (min-width: 768px) {
+            #home h1 { font-size: 45px; }
+            #home p { font-size: 20px; max-width: 900px; }
+        }
+
+        /* Profile Picture Frame - High-Tech Circular */
+        .profile-frame {
+            width: 220px; height: 220px;
+            border: 3px solid #00FFFF;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            color: #00FFFF; font-weight: 700;
+            background: rgba(0, 255, 255, 0.05);
+            box-shadow: 0 0 15px #00FFFF;
+            flex-shrink: 0;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .profile-frame img {
+             width: 100%; height: 100%;
+             object-fit: cover; /* KEY: Fill the circular frame */
+             border-radius: 50%;
+        }
+
+        /* --- COMMON LAYOUT & SCROLLING STYLES --- */
+        .page-content-wrapper { /* Scrollable Content Area */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            flex-grow: 1;
+            width: 100%;
+            padding: 10px 0;
+            overflow-y: auto; /* CRITICAL: Enables scrolling for content overflow */
+            overflow-x: hidden;
+            min-height: 0; 
+        }
+        .page h1 { color: #ffffff; margin-bottom: 20px; flex-shrink: 0; text-align: center; }
+
+        /* Card Container Styling - 4 items Horizontal arrangement on desktop */
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 0; 
+            width: 95%;
+            max-width: 1000px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding-bottom: 20px;
+        }
+        @media (max-width: 767px) {
+             .card-container {
+                 flex-direction: column;
+             }
+             .edu-card-item, .ach-card-item, .family-card-item {
+                 width: 90%;
+             }
+        }
+        @media (min-width: 768px) {
+            .card-container {
+                flex-direction: row;
+                align-items: stretch; /* Forces all items in the row to the same height */
+                justify-content: space-between;
+            }
+            .edu-card-item, .ach-card-item, .family-card-item {
+                width: 23%; /* Four columns on desktop for consistency */
+                min-height: 280px; 
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* --- EDUCATION SPECIFIC STYLES (CYAN ACCENTS) --- */
+        .edu-card-item { /* Base style for Education cards */
+            background: #1c1c1c;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(0, 255, 255, 0.3); /* Cyan border */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .edu-card-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4); /* Cyan glow on hover */
+        }
+        .edu-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            flex-grow: 1;
+            justify-content: center;
+        }
+        .edu-level { 
+            font-weight: 700; 
+            color: #00FFFF; /* Cyan text */
+            font-size: 1.1rem; 
+            margin-bottom: 5px; 
+        }
+        .edu-name { 
+            font-size: 0.9rem; 
+            color: #b0b0b0; 
+            line-height: 1.3; 
+        }
+        /* Icon/Logo Frame (Circular for Education) */
+        .logo-frame-edu {
+            width: 80px; height: 80px;
+            border: 2px solid #555555;
+            border-radius: 50%; /* CIRCULAR */
+            display: flex; justify-content: center; align-items: center;
+            color: #333333; font-size: 10px;
+            background: #dddddd;
+            flex-shrink: 0;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .logo-frame-edu img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* --- ACHIEVEMENTS SPECIFIC STYLES (MODIFIED FOR FAMILY CARD FORMAT) --- */
+        .ach-card-item { /* Base style for Achievement cards */
+            background: #1c1c1c;
+            border-radius: 10px;
+            padding: 0; /* MODIFIED: Remove padding on main card to match family format */
+            text-align: left; /* MODIFIED: Align text left to match family format */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #FFD700; /* MODIFIED: Solid gold border to match family thickness/prominence */
+            margin-left: auto;
+            margin-right: auto;
+            overflow: hidden;
+            width: 95%; /* Mobile width control */
+            max-width: 320px; /* Limit max width for cards */
+        }
+        @media (min-width: 768px) {
+            .ach-card-item {
+                width: 23%; /* Keep 4-column layout */
+                min-height: 280px; 
+            }
+        }
+        .ach-card-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); /* Gold glow on hover */
+        }
+        
+        /* New: Image Container for Achievements (Adopting Family structure) */
+        .ach-image-container {
+            width: 100%;
+            /* Fixed aspect ratio to give the image area a standard look */
+            aspect-ratio: 4/3; 
+            overflow: hidden;
+            background: #3a3200; /* Darker gold/brown background for achievement placeholder */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ach-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure no part of the image is cut out */
+        }
+        
+        /* New: Text content container for Achievements (Adopting Family structure) */
+        .ach-text-content {
+            padding: 15px;
+            color: #b0b0b0;
+            flex-grow: 1;
+            width: 100%; /* Ensure text content spans full width of card */
+        }
+        
+        .ach-level { 
+            font-weight: 700; 
+            color: #FFD700; /* Gold text */
+            font-size: 1.1rem; 
+            margin-bottom: 5px; 
+            text-align: left; /* Explicitly left-aligned */
+        }
+        .ach-name { 
+            font-size: 0.9rem; 
+            color: #b0b0b0; 
+            line-height: 1.4; 
+            text-align: left; /* Explicitly left-aligned */
+        }
+        /* Hidden elements from the old achievement layout that are no longer used */
+        .logo-frame-ach, .ach-details {
+            display: none;
+        }
+
+        /* --- FAMILY PAGE SPECIFIC STYLES (BLUE/AQUA ACCENTS) --- */
+        #family h1 { 
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .family-card-item {
+            background: #1c1c1c;
+            border-radius: 10px;
+            padding: 0; 
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #00FFFF; /* Cyan Border */
+            margin-left: auto;
+            margin-right: auto;
+            overflow: hidden;
+            width: 95%; /* Mobile width control */
+            max-width: 320px; /* Limit max width for cards */
+        }
+        @media (min-width: 768px) {
+            .family-card-item {
+                width: 30%; /* Three columns on desktop */
+            }
+        }
+        .family-card-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+        }
+        
+        /* New: Image Container for the Family Section */
+        .family-image-container {
+            width: 100%;
+            aspect-ratio: 4/3; 
+            overflow: hidden;
+            background: #2b2b2b; /* Dark gray background for placeholder */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .family-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+        }
+
+        .family-text-content {
+            padding: 15px;
+            color: #b0b0b0;
+            flex-grow: 1; /* Ensures text content fills remaining space, pushing the bottom edge down */
+        }
+        .family-title {
+            font-weight: 700;
+            color: #00FFFF; /* Cyan title */
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .family-description {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Button Container for Family Page - Aligned to Left */
+        #family .nav-button-container {
+            justify-content: flex-start; /* Align button to the start */
+            width: 95%; /* Use card container width for consistency */
+            max-width: 900px;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <a id="nav-home" href="#" onclick="showPage('home')">About Me</a>
+        <a id="nav-education" href="#" onclick="showPage('education')">Education</a>
+        <a id="nav-achievements" href="#" onclick="showPage('achievements')">Achievements</a>
+        <a id="nav-family" href="#" onclick="showPage('family')">My Family</a>
+    </nav>
+
+    <!-- HOME PAGE (About Me) - Page 1 --><div class="page active" id="home">
+        <div class="home-content animate-in">
+            <!-- Profile Picture with IMG SRC (Placeholder adjusted to 220x220) --><div class="profile-frame">
+                <img src="https://lh3.googleusercontent.com/pw/AP1GczMLarLmKtIu8G0mtjFzQz004St1zahjE2bIC5aNdAGtFar61u3PCEKWJIi0G0YCb0m3S3dK43v7fJONy_l5h7mKPUVR9YtNlqDTTifPey_Ix1MX6FY=w2400"
+                    alt="Profile Picture"
+                    onerror="this.onerror=null; this.src='https://placehold.co/220x220/333333/FFFFFF?text=Error';">
+            </div>
+            <h1>Hello, I'm Abraham S. Fagcayang</h1>
+            <p>
+                Hello! I’m an aspiring IT professional with a major in Enterprise Resource Planning. Ever since I was young, I’ve been fascinated by how technology connects people and simplifies life. That curiosity grew into a passion for solving problems through innovation and system efficiency. Today, I strive to combine my technical skills and creativity to build solutions that make a real difference.
+            </p>
+        </div>
+        <div class="nav-button-container">
+            <div style="width: 100%;"></div>
+            <button class="nav-button nav-button-next" onclick="showPage('education')">Next >></button>
+        </div>
+    </div>
+
+    <!-- EDUCATION PAGE - Page 2 --><div class="page" id="education">
+        <div class="page-content-wrapper animate-in">
+            <h1>EDUCATIONAL BACKGROUND</h1>
+
+            <div class="card-container">
+                <!-- Card 1: Tocucan Elementary School --><div class="edu-card-item">
+                    <div class="logo-frame-edu">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczOBToSXJyGegXvEWNIQnYxXYGzw9mLrDhmfRfyufsRXvGoetfl5k_n6TL_3_55Tpv6xNy9uxlqYIj2FzpfI493I97cYqSq5bSMkNyyaDwyJjtvulhs=w2400"
+                             alt="Elementary School Logo"
+                             onerror="this.onerror=null; this.src='https://placehold.co/80x80/dddddd/333333?text=Error';">
+                    </div>
+                    <div class="edu-details">
+                        <span class="edu-level">Tocucan Elementary School</span>
+                        <span class="edu-name">Elementary School<br>2018-2019</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Mt. Province General Comprehensive Highschool --><div class="edu-card-item">
+                    <div class="logo-frame-edu">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczMO_J83_QeS7bYuztF4-4Z81rtVK8yU1IM1NlE4Dgp4ve6HVdbVju9PBUKMAPQzs48Dq9-4ZAostbJH1IcNnnNinS5MFtkiBeKAVrJeSXAAw-2fsOo=w2400"
+                             alt="Junior High School Logo"
+                             onerror="this.onerror=null; this.src='https://placehold.co/80x80/dddddd/333333?text=Error';">
+                    </div>
+                    <div class="edu-details">
+                        <span class="edu-level">Mt. Province General Comprehensive Highschool</span>
+                        <span class="edu-name">Junior Highschool<br>2022-2023</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: All Saints Mission School of Mt. Province Inc. --><div class="edu-card-item">
+                    <div class="logo-frame-edu">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczO4YqjdjDnJAu4do8Cx6CUWM-thgPbhy3kyISwEoOsXrNXnhBYnPqZJ00-JtRpN7Q1oUR7WbEO8fJPeYCZIZt2iSjkjZsIin2BJdSRkx9VsqAVQwU4=w2400"
+                             alt="Senior High School Logo"
+                             onerror="this.onerror=null; this.src='https://placehold.co/80x80/dddddd/333333?text=Error';">
+                    </div>
+                    <div class="edu-details">
+                        <span class="edu-level">All Saints Mission School of Mt. Province Inc.</span>
+                        <span class="edu-name">Senior Highschool<br>Track: Humanities and Social Sciences<br>With Honors<br>2024-2025</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: University of the Cordilleras --><div class="edu-card-item">
+                    <div class="logo-frame-edu">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczO5hJlqwuUsm4aSPIA0RB4GUWm5C9j0C7c__CzzH6iAgFrOebx77G5zFDIoE4sVn0S3uEc4LHWs3M7UReseqnkKLZoJSiQ_DSmXeBB77LV4FNN-wto=w2400"
+                             alt="University Logo"
+                             onerror="this.onerror=null; this.src='https://placehold.co/80x80/dddddd/333333?text=Error';">
+                    </div>
+                    <div class="edu-details">
+                        <span class="edu-level">University of the Cordilleras</span>
+                        <span class="edu-name">Bachelor in Science in <br>Information Technology-<br>Enterprise Resource Planning</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back and Next Buttons for Education Page --><div class="nav-button-container">
+            <button class="nav-button nav-button-back" onclick="showPage('home')"><< Back</button>
+            <button class="nav-button nav-button-next" onclick="showPage('achievements')">Next >></button>
+        </div>
+    </div>
+
+    <!-- ACHIEVEMENTS PAGE - Page 3 (STRUCTURE MODIFIED) --><div class="page" id="achievements">
+        <div class="page-content-wrapper animate-in">
+            <h1>ACHIEVEMENTS</h1>
+            
+            <div class="card-container"> 
+                <!-- Achievement Card 1: Work Immersion Completion -->
+                <div class="ach-card-item">
+                    <div class="ach-image-container">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczNShOzVvXut_imESgNUOYXEYsJlttTPv8aJ8fQU7dic7-EZ2HAkQyVhpSqY3Z2o9bQPlOungKg_6pbxNlEXB77yUmMPFhasXqnhZPCTn-UfRXWqLto=w2400"
+                             alt="Work Immersion Certificate"
+                             onerror="this.onerror=null; this.src='https://placehold.co/320x240/3a3200/FFD700?text=Certificate';"
+                        >
+                    </div>
+                    <div class="ach-text-content">
+                        <div class="ach-level">Work Immersion Completion</div>
+                        <div class="ach-name">Successfully completed the required work experience program.</div>
+                    </div>
+                </div>
+
+                <!-- Achievement Card 2: With Honors 2023-2024 -->
+                <div class="ach-card-item">
+                    <div class="ach-image-container">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczPdVnTutu5Y26jI96cIsHbPgLNc0Uno-sPkcBZsyVsPv14Y-fpjW2F1Bl2a--OUIt4FR5O-xHyaNBQ0uRTtqU9aPHjWVOOfAbUJ739B6lYoAyOnqH4=w2400"
+                             alt="With Honors 2023-2024 Recognition Photo"
+                             onerror="this.onerror=null; this.src='https://placehold.co/320x240/3a3200/FFD700?text=Award+Photo';"
+                        >
+                    </div>
+                    <div class="ach-text-content">
+                        <div class="ach-level">With Honors (SY 2023-2024)</div>
+                        <div class="ach-name">Recognized for academic excellence during the school year.</div>
+                    </div>
+                </div>
+
+                <!-- Achievement Card 3: With Honors 2024-2025 -->
+                <div class="ach-card-item">
+                    <div class="ach-image-container">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczPOs6CZR9kH9GR_fcmtpq8mwBLVTF-9d1awE1OGSzDTmBMDKTibhA8DKMGeN6OvKBaGOTLpAyrW-bSOVlhfKDkJZBPeSC4ptJuuzasjYXybD9H1RLs=w2400"
+                             alt="With Honors 2024-2025 Certificate"
+                             onerror="this.onerror=null; this.src='https://placehold.co/320x240/3a3200/FFD700?text=Certificate';"
+                        >
+                    </div>
+                    <div class="ach-text-content">
+                        <div class="ach-level">With Honors (SY 2024-2025)</div>
+                        <div class="ach-name">Achieved academic distinction for the second consecutive year.</div>
+                    </div>
+                </div>
+
+                <!-- Achievement Card 4: Senior High Graduation (Promoted to fill the 4th spot) -->
+                <div class="ach-card-item">
+                    <div class="ach-image-container">
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczOBKb1VbZNzFrOo7Nu0WtGHxSJTHncCrpgpO8f7CB24sFG2jvlVwIKUlx8J26Kv-IEUVZU1_0_aonMONC6mj7JPbqUrZKddkR3mDn-cFa33D_NW8hc=w2400"
+                             alt="Senior High Graduation Photo"
+                             onerror="this.onerror=null; this.src='https://placehold.co/320x240/3a3200/FFD700?text=Graduation+Photo';"
+                        >
+                    </div>
+                    <div class="ach-text-content">
+                        <div class="ach-level">Senior High Graduation</div>
+                        <div class="ach-name">Successful completion of Senior High School program.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back and Next Buttons for Achievements Page --><div class="nav-button-container">
+            <button class="nav-button nav-button-back" onclick="showPage('education')"><< Back</button>
+            <button class="nav-button nav-button-next" onclick="showPage('family')">Next >></button> 
+        </div>
+    </div>
+
+    <!-- MY FAMILY PAGE - Page 4 (Updated with placeholder images) --><div class="page" id="family">
+        <h1>MY FAMILY</h1>
+        <div class="page-content-wrapper animate-in">
+            <div class="card-container" style="justify-content: space-evenly;">
+                
+                <!-- Family Card 1: Embracing my Mother --><div class="family-card-item">
+                    <div class="family-image-container">
+                        <!-- Placeholder updated to 4:3 ratio (320x240) -->
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczMYKsqHNr6vc7Mw3M316Wb6sz6U-ODfwzNR5kbvf7NjarxHT8QAOepjyTfbNI5ooJJy_Lvdet5fVNVlem328rD4CX643lE82hrbJeA-73E4d9ONMCc=w2400"
+                             alt="Embracing Mother Placeholder"
+                             onerror="this.onerror=null; this.src='https://placehold.co/320x240/77b8ff/333333?text=Error';"
+                        >
+                    </div>
+                    <div class="family-text-content">
+                        <div class="family-title">Embracing my Mother</div>
+                        <div class="family-description">
+                            I'm embracing my mother because she means the world to me. She works hard and does her best on raising me even though she's not here anymore.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Family Card 2: Shaking my Father's Hand --><div class="family-card-item">
+                    <div class="family-image-container">
+                          <!-- Placeholder updated to 4:3 ratio (320x240) -->
+                          <img src="https://lh3.googleusercontent.com/pw/AP1GczMqL-Ntn39Q5bPpWDpCKIjw72lm5mNX0Pax_ba3MjSXu4r3Z6CxBhItwiSYaXlQ-cmrorPLlfGj2Rn43V8-Hjat6a2NsE6mLtaTuhN9PVsEGw6A8wc=w2400"
+                             alt="Shaking Father's Hand Placeholder"
+                             onerror="this.onerror=null; this.src='https://placehold.co/320x240/38761d/ffffff?text=Error';"
+                        >
+                    </div>
+                    <div class="family-text-content">
+                        <div class="family-title">Shaking my Father's Hand</div>
+                        <div class="family-description">
+                            I am proud of my dad because he is the one who continued raising me ever since my mother passed away. He sacrificed a lot just to do what's best for me.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Family Card 3: A group picture with my Best Friends --><div class="family-card-item">
+                    <div class="family-image-container">
+                        <!-- Placeholder updated to 4:3 ratio (320x240) -->
+                        <img src="https://lh3.googleusercontent.com/pw/AP1GczNkVvNhw_M20crUssj9rlFHg7IxHsduuopDugw1tcKUEzB83ZAZTalI-Nn0mKgQBkAXJukim-6HZrCMKDjUSpwuchN18aSSFjtH72MO250rKeqluKY=w2400"
+                             alt="Best Friends Group Picture Placeholder"
+                             onerror="this.onerror=null; this.src='https://placehold.co/320x240/00FFFF/333333?text=Error';"
+                        >
+                    </div>
+                    <div class="family-text-content">
+                        <div class="family-title">A group picture with my Best Friends</div>
+                        <div class="family-description">
+                            We may not be biologically related but they are the ones who accepts me and doesn't care who or what I am. We treat each other and love each other as if we are brothers and sisters.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button for Family Page --><div class="nav-button-container">
+            <button class="nav-button nav-button-back" onclick="showPage('achievements')">Back</button>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            // 1. Remove active class and animation class from all pages
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.remove('active', 'animate-in');
+            });
+
+            // 2. Add active class to the requested page
+            const page = document.getElementById(pageId);
+            if (page) {
+                // Force reflow/re-render to restart the CSS animation
+                void page.offsetWidth;
+
+                page.classList.add('active', 'animate-in');
+            }
+
+            // 3. Update nav link styling
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('nav-active'));
+            const activeLink = document.getElementById(nav-${pageId});
+            if (activeLink) {
+                activeLink.classList.add('nav-active');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('home');
+        });
+    </script>
+</body>
+</html>
